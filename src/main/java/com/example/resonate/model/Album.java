@@ -20,7 +20,7 @@ public class Album {
     private int duration;
 
     @OneToMany(mappedBy = "album")
-    private List<Song> songList;
+    private List<Song> songList = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name="artist_id")

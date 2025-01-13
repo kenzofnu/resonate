@@ -3,6 +3,7 @@ package com.example.resonate.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,8 +16,10 @@ public class Artist {
 
     private String name;
 
+    private String description;
+
     @OneToMany(mappedBy = "artist")
-    private List<Album> albumList;
+    private List<Album> albumList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -40,5 +43,13 @@ public class Artist {
 
     public void setAlbumList(List<Album> albumList) {
         this.albumList = albumList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
