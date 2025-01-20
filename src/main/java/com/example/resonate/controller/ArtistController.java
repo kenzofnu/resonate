@@ -1,9 +1,11 @@
 package com.example.resonate.controller;
 
+import com.example.resonate.DTO.Album.AlbumDTO;
 import com.example.resonate.DTO.Album.AlbumRequestDTO;
 import com.example.resonate.DTO.Artist.ArtistDTO;
 import com.example.resonate.DTO.Artist.ArtistRequestDTO;
 import com.example.resonate.DTO.Artist.ArtistUpdateDTO;
+import com.example.resonate.DTO.Song.SongDTO;
 import com.example.resonate.DTO.Song.SongRequestDTO;
 import com.example.resonate.service.ArtistService;
 import jakarta.validation.Valid;
@@ -17,8 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/resonate/artist")
 public class ArtistController {
 
-    @Autowired
+
     private ArtistService artistService;
+
+    public ArtistController(ArtistService artistService) {
+        this.artistService = artistService;
+    }
 
     @GetMapping
     public ResponseEntity<Page<ArtistDTO>> getAll(Pageable pageable) {
@@ -33,8 +39,32 @@ public class ArtistController {
         return ResponseEntity.ok(artistService.addArtist(artistRequestDTO));
     }
 
+    @GetMapping("/name")
+    public ResponseEntity<Page<ArtistDTO>> searchByTitle(@RequestParam String name, Pageable pageable) {
+
+        Page<ArtistDTO> artists = artistService.searchByName(name,pageable);
+
+        return ResponseEntity.ok(artists);
+
+    }
+
+    @GetMapping("/{id}/songs")
+    public ResponseEntity<Page<SongDTO>> getAllSongs(@PathVariable Long id, Pageable pageable) {
+
+        return ResponseEntity.ok(artistService.findSongsById(id, pageable));
+
+    }
+
+    @GetMapping("/{id}/albums")
+    public ResponseEntity<Page<AlbumDTO>> getAllAlbums(@PathVariable Long id, Pageable pageable) {
+
+        return ResponseEntity.ok(artistService.findAlbumsById(id, pageable));
+
+    }
+
+
     @PutMapping("/{id}")
-    public ResponseEntity<ArtistDTO> updateAlbum(@PathVariable Long id, @Valid @RequestBody ArtistUpdateDTO artistUpdateDTO) {
+    public ResponseEntity<ArtistDTO> updateArtist(@PathVariable Long id, @Valid @RequestBody ArtistUpdateDTO artistUpdateDTO) {
 
 
         return ResponseEntity.ok(artistService.updateArtist(id,artistUpdateDTO));
@@ -42,7 +72,7 @@ public class ArtistController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAlbum(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteArtist(@PathVariable Long id) {
         artistService.deleteArtist(id);
         return ResponseEntity.noContent().build();
     }
@@ -53,6 +83,18 @@ public class ArtistController {
         artistService.addAlbumToArtist(id,albumRequestDTO);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/add/album/{albumid}")
+    public ResponseEntity<ArtistDTO> addExistingAlbum(@PathVariable Long id, @PathVariable Long albumid) {
+
+        return ResponseEntity.ok(artistService.addExistingAlbum(id,albumid));
+    }
+
+    @PutMapping("/{id}/remove/album/{albumid}")
+    public ResponseEntity<ArtistDTO> removeSongFromAlbum(@PathVariable Long id, @PathVariable Long albumid) {
+
+        return ResponseEntity.ok(artistService.removeAlbumFromArtist(id,albumid));
     }
 
 

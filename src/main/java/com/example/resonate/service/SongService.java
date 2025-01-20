@@ -3,19 +3,28 @@ package com.example.resonate.service;
 import com.example.resonate.DTO.Song.SongDTO;
 import com.example.resonate.DTO.Song.SongRequestDTO;
 import com.example.resonate.DTO.Song.SongUpdateDTO;
+import com.example.resonate.model.Album;
 import com.example.resonate.model.Song;
+import com.example.resonate.repository.AlbumRepository;
 import com.example.resonate.repository.SongRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 @Service
 public class SongService {
 
     private SongRepository songRepository;
 
-    public SongService(SongRepository songRepository) {
+    private AlbumRepository albumRepository;
+
+    public SongService(SongRepository songRepository, AlbumRepository albumRepository) {
         this.songRepository = songRepository;
+        this.albumRepository = albumRepository;
     }
 
 
@@ -45,14 +54,29 @@ public class SongService {
 
     }
 
+    @Transactional
     public void deleteSong(Long id) {
 
         Song song = songRepository.findById(id).orElseThrow(()-> new RuntimeException("Song not found with id "+id));
+
+        if(song.getAlbum()!=null) {
+            Album album = song.getAlbum();
+
+            album.getSongList().remove(song);
+
+            int duration= album.getSongList().stream().mapToInt(Song::getDuration).sum();
+
+            album.setDuration(duration);
+
+            albumRepository.save(album);
+        }
+
 
         songRepository.delete(song);
 
     }
 
+    @Transactional
     public SongDTO updateSong(Long id, SongUpdateDTO songUpdateDTO) {
 
         Song updatedSong = songRepository.findById(id).orElseThrow(()-> new RuntimeException("Song not found with id "+id));
@@ -71,6 +95,14 @@ public class SongService {
 
         songRepository.save(updatedSong);
 
+        Album album = updatedSong.getAlbum();
+
+        int duration= album.getSongList().stream().mapToInt(Song::getDuration).sum();
+
+        album.setDuration(duration);
+
+        albumRepository.save(album);
+
         return toSongDTO(updatedSong);
     }
 
@@ -82,4 +114,12 @@ public class SongService {
         return new SongDTO(song.getTitle(),song.getNumber(),song.getDuration());
     }
 
+    public Page<SongDTO> searchByTitle(String title, Pageable pageable) {
+
+        return songRepository.searchByTitle(title,pageable).map(this::toSongDTO);
+
+
+
+
+    }
 }

@@ -10,12 +10,14 @@ import com.example.resonate.model.Album;
 import com.example.resonate.model.Song;
 import com.example.resonate.repository.AlbumRepository;
 import com.example.resonate.repository.SongRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -24,11 +26,11 @@ public class AlbumService {
 
     private AlbumRepository albumRepository;
 
-    @Autowired
     private SongRepository songRepository;
 
-    public AlbumService(AlbumRepository albumRepository) {
+    public AlbumService(AlbumRepository albumRepository, SongRepository songRepository) {
         this.albumRepository = albumRepository;
+        this.songRepository = songRepository;
     }
 
     public Page<AlbumDTO> getAll(Pageable pageable) {
@@ -51,7 +53,7 @@ public class AlbumService {
 
     }
 
-
+    @Transactional
     public AlbumDTO updateAlbum(Long id, AlbumUpdateDTO albumUpdateDTO) {
 
         Album album = albumRepository.findById(id).orElseThrow(()->new RuntimeException("Album not found with id "+ id));
@@ -69,6 +71,7 @@ public class AlbumService {
         return toAlbumDTO(album);
     }
 
+
     public void deleteAlbum(Long id) {
         Album album = albumRepository.findById(id).orElseThrow(()->new RuntimeException("Album not found with id "+ id));
 
@@ -76,6 +79,7 @@ public class AlbumService {
 
     }
 
+    @Transactional
     public void addSongsToAlbum(Long id, List<SongRequestDTO> songs) {
 
         Album album = albumRepository.findById(id).orElseThrow(()-> new RuntimeException("Album not found with id "+ id));
@@ -87,13 +91,14 @@ public class AlbumService {
                     song.setTitle(dto.getTitle());
                     song.setNumber(dto.getNumber());
                     song.setAlbum(album);
+                    album.getSongList().add(song);
                     return song;
                 }
         ).collect(Collectors.toList());
 
-        int totalDuration = songs.stream().mapToInt(SongRequestDTO::getDuration).sum();
+        int duration= album.getSongList().stream().mapToInt(Song::getDuration).sum();
 
-        album.setDuration(totalDuration);
+        album.setDuration(duration);
 
         albumRepository.save(album);
 
@@ -112,6 +117,7 @@ public class AlbumService {
         return new SongDTO(song.getId(),song.getTitle(),song.getNumber(),song.getDuration());
     }
 
+    @Transactional
     public AlbumDTO removeSongFromAlbum(Long id, Long songid) {
 
         Album album = albumRepository.findById(id).orElseThrow(() -> new RuntimeException());
@@ -134,12 +140,12 @@ public class AlbumService {
 
         albumRepository.save(album);
 
-
         return toAlbumDTO(album);
 
 
     }
 
+    @Transactional
     public AlbumDTO addExistingSong(Long id, Long songid) {
         Album album = albumRepository.findById(id).orElseThrow(() -> new RuntimeException());
 
@@ -163,5 +169,21 @@ public class AlbumService {
 
         return toAlbumDTO(album);
 
+    }
+
+    public Page<SongDTO> getSongs(Long id, Pageable pageable) {
+
+        Album album = albumRepository.findById(id).orElseThrow(()-> new RuntimeException("album not found"));
+
+        Page<Song> song = songRepository.findByAlbumId(id,pageable);
+
+        return song.map(this::toSongDTO);
+
+
+    }
+
+    public Page<AlbumDTO> searchAlbumByTitle(String title, Pageable pageable) {
+
+        return albumRepository.searchAlbumByTitle(title, pageable).map(this::toAlbumDTO);
     }
 }

@@ -12,11 +12,12 @@ import com.example.resonate.model.Artist;
 import com.example.resonate.model.Song;
 import com.example.resonate.repository.AlbumRepository;
 import com.example.resonate.repository.ArtistRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,12 +26,11 @@ import java.util.stream.Collectors;
 public class ArtistService {
 
     private ArtistRepository artistRepository;
-
-    @Autowired
     private AlbumRepository albumRepository;
 
-    public ArtistService(ArtistRepository artistRepository) {
+    public ArtistService(ArtistRepository artistRepository, AlbumRepository albumRepository) {
         this.artistRepository = artistRepository;
+        this.albumRepository = albumRepository;
     }
 
 
@@ -41,7 +41,6 @@ public class ArtistService {
 
     }
 
-    @Transactional
     public ArtistDTO addArtist(ArtistRequestDTO artistRequestDTO) {
 
         Artist artist = new Artist();
@@ -58,6 +57,7 @@ public class ArtistService {
 
     }
 
+    @Transactional
     public ArtistDTO updateArtist(Long id, ArtistUpdateDTO artistUpdateDTO) {
 
         Artist artist = artistRepository.findById(id).orElseThrow(()-> new RuntimeException());
@@ -81,6 +81,7 @@ public class ArtistService {
         artistRepository.delete(artist);
     }
 
+    @Transactional
     public void addAlbumToArtist(Long id, AlbumRequestDTO albumRequestDTO) {
 
         Artist artist = artistRepository.findById(id).orElseThrow(()-> new RuntimeException());
@@ -113,5 +114,70 @@ public class ArtistService {
 
     public SongDTO toSongDTO(Song song) {
         return new SongDTO(song.getId(),song.getTitle(),song.getNumber(),song.getDuration());
+    }
+
+
+    @Transactional
+    public ArtistDTO addExistingAlbum(Long id, Long albumid) {
+
+        Artist artist = artistRepository.findById(id).orElseThrow(()-> new RuntimeException("Artist not found"));
+
+        Album album = albumRepository.findById(albumid).orElseThrow(()-> new RuntimeException("Album not found"));
+
+        if(artist.getAlbumList().contains(album)) {
+            throw new RuntimeException("Album already exists");
+        }
+
+        album.setArtist(artist);
+
+        artist.getAlbumList().add(album);
+
+        albumRepository.save(album);
+
+        artistRepository.save(artist);
+
+        return toArtistDTO(artist);
+
+    }
+
+    @Transactional
+    public ArtistDTO removeAlbumFromArtist(Long id, Long albumid) {
+
+        Artist artist = artistRepository.findById(id).orElseThrow(()-> new RuntimeException("Artist not found"));
+
+        Album album = albumRepository.findById(albumid).orElseThrow(()-> new RuntimeException("Album not found"));
+
+        if(artist.getAlbumList().contains(album)) {
+            album.setArtist(null);
+        }
+
+        artist.getAlbumList().add(album);
+
+        artistRepository.save(artist);
+
+        albumRepository.save(album);
+
+        return toArtistDTO(artist);
+
+    }
+
+    public Page<ArtistDTO> searchByName(String name, Pageable pageable) {
+
+        return artistRepository.searchByName(name,pageable).map(this::toArtistDTO);
+    }
+
+    public Page<SongDTO> findSongsById(Long id, Pageable pageable) {
+
+        Page<Song> page= artistRepository.findSongsById(id,pageable);
+
+        return page.map(this::toSongDTO);
+    }
+
+    public Page<AlbumDTO> findAlbumsById(Long id, Pageable pageable) {
+
+        Page<Album> album = artistRepository.findAlbumsById(id, pageable);
+
+        return album.map(this::toAlbumDTO);
+
     }
 }

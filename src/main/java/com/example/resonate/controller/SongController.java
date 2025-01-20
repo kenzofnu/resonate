@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/resonate/song")
 public class SongController {
 
-    @Autowired
+
     private SongService songService;
+
+    public SongController(SongService songService) {
+        this.songService = songService;
+    }
 
     @GetMapping
     public ResponseEntity<Page<SongDTO>> getAllSong(Pageable pageable) {
@@ -32,6 +36,15 @@ public class SongController {
 
         Page<SongDTO> songs = songService.getAllSummary(pageable);
         return ResponseEntity.ok(songs);
+    }
+
+    @GetMapping("/title")
+    public ResponseEntity<Page<SongDTO>> searchByTitle(@RequestParam String title, Pageable pageable) {
+
+        Page<SongDTO> songs = songService.searchByTitle(title,pageable);
+
+        return ResponseEntity.ok(songs);
+
     }
 
 

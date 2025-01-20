@@ -3,6 +3,7 @@ package com.example.resonate.controller;
 import com.example.resonate.DTO.Album.AlbumDTO;
 import com.example.resonate.DTO.Album.AlbumRequestDTO;
 import com.example.resonate.DTO.Album.AlbumUpdateDTO;
+import com.example.resonate.DTO.Song.SongDTO;
 import com.example.resonate.DTO.Song.SongRequestDTO;
 import com.example.resonate.model.Album;
 import com.example.resonate.model.Song;
@@ -15,20 +16,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
 @RestController
 @RequestMapping("/resonate/album")
 public class AlbumController {
 
-    @Autowired
+
     private AlbumService albumService;
 
+    public AlbumController(AlbumService albumService) {
+        this.albumService = albumService;
+    }
+
     @GetMapping
-    public Page<AlbumDTO> getAlbums(Pageable pageable) {
+    public ResponseEntity<Page<AlbumDTO>> getAlbums(Pageable pageable) {
 
-        return albumService.getAll(pageable);
+        return ResponseEntity.ok(albumService.getAll(pageable));
 
+    }
+
+    @GetMapping("/title")
+    public ResponseEntity<Page<AlbumDTO>> searchAlbumByTitle(@RequestParam String title, Pageable pageable) {
+
+        return ResponseEntity.ok().body(albumService.searchAlbumByTitle(title, pageable));
     }
 
     @PostMapping
@@ -65,12 +77,20 @@ public class AlbumController {
 
     }
 
-    @PostMapping("/{id}/add/song/{songid}")
+    @PutMapping("/{id}/add/song/{songid}")
     public ResponseEntity<AlbumDTO> addExistingSong(@PathVariable Long id, @PathVariable Long songid) {
 
         return ResponseEntity.ok(albumService.addExistingSong(id,songid));
     }
 
+    @GetMapping("/{id}/songs")
+    public ResponseEntity<Page<SongDTO>> getSongs(@PathVariable Long id, Pageable pageable) {
+
+        Page<SongDTO> songDTOPage= albumService.getSongs(id,pageable);
+
+        return ResponseEntity.ok(songDTOPage);
+
+    }
 
 
 }

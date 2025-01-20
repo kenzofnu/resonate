@@ -2,8 +2,12 @@ package com.example.resonate.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "song")
+@Table(name = "song",uniqueConstraints = @UniqueConstraint(columnNames = {"album_id","number"}))
+
 public class Song {
 
     @Id
@@ -19,6 +23,17 @@ public class Song {
     @ManyToOne
     @JoinColumn(name="album_id")
     private Album album;
+
+    @ManyToMany(mappedBy = "songList")
+    private List<Playlist> playlistList = new ArrayList<>();
+
+    public List<Playlist> getPlaylistList() {
+        return playlistList;
+    }
+
+    public void setPlaylistList(List<Playlist> playlistList) {
+        this.playlistList = playlistList;
+    }
 
     public String getTitle() {
         return title;
@@ -59,4 +74,6 @@ public class Song {
     public void setId(Long id) {
         this.id = id;
     }
+
+
 }
