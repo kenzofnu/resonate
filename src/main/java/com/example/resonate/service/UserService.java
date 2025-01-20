@@ -2,10 +2,12 @@ package com.example.resonate.service;
 
 import com.example.resonate.DTO.Playlist.PlaylistDTO;
 import com.example.resonate.DTO.Playlist.PlaylistRequestDTO;
+import com.example.resonate.DTO.Song.SongDTO;
 import com.example.resonate.DTO.User.UserDTO;
 import com.example.resonate.DTO.User.UserRequestDTO;
 import com.example.resonate.DTO.User.UserUpdateDTO;
 import com.example.resonate.model.Playlist;
+import com.example.resonate.model.Song;
 import com.example.resonate.model.User;
 import com.example.resonate.repository.PlaylistRepository;
 import com.example.resonate.repository.UserRepository;
@@ -112,6 +114,11 @@ public class UserService {
     }
 
     public PlaylistDTO toPlaylistDTO(Playlist playlist) {
-        return new PlaylistDTO(playlist.getId(),playlist.getName(),playlist.getSongList());
+        List<SongDTO> songDTO = playlist.getSongList().stream().map(this::toSongDTO).collect(Collectors.toList());
+        return new PlaylistDTO(playlist.getId(), playlist.getName(), songDTO);
+    }
+
+        public SongDTO toSongDTO(Song song) {
+        return new SongDTO(song.getId(),song.getTitle(),song.getNumber(),song.getDuration());
     }
 }

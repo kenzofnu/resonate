@@ -1,5 +1,6 @@
 package com.example.resonate.DTO.Playlist;
 
+import com.example.resonate.DTO.Song.SongDTO;
 import com.example.resonate.model.Song;
 import com.example.resonate.model.User;
 import jakarta.persistence.*;
@@ -13,12 +14,12 @@ public class PlaylistDTO {
 
     private String name;
 
-    private List<Song> songList = new ArrayList<>();
+    private List<SongDTO> songList = new ArrayList<>();
 
     public PlaylistDTO() {
     }
 
-    public PlaylistDTO(Long id, String name, List<Song> songList) {
+    public PlaylistDTO(Long id, String name, List<SongDTO> songList) {
         this.id = id;
         this.name = name;
         this.songList = songList;
@@ -41,11 +42,11 @@ public class PlaylistDTO {
     }
 
 
-    public List<Song> getSongList() {
+    public List<SongDTO> getSongList() {
         return songList;
     }
 
-    public void setSongList(List<Song> songList) {
+    public void setSongList(List<SongDTO> songList) {
         this.songList = songList;
     }
 }
