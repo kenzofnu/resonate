@@ -180,4 +180,11 @@ public class ArtistService {
         return album.map(this::toAlbumDTO);
 
     }
+
+    public ArtistDTO findById(Long id) {
+
+        Artist artist = artistRepository.findById(id).orElseThrow(()-> new RuntimeException("Artist not found"));
+
+        return toArtistDTO(artist);
+    }
 }

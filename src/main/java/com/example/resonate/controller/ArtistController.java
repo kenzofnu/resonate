@@ -33,6 +33,13 @@ public class ArtistController {
 
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ArtistDTO> findById(Long id) {
+
+        return ResponseEntity.ok().body(artistService.findById(id));
+
+    }
+
     @PostMapping
     public ResponseEntity<ArtistDTO> addArtist(@Valid @RequestBody ArtistRequestDTO artistRequestDTO) {
 
@@ -40,7 +47,7 @@ public class ArtistController {
     }
 
     @GetMapping("/name")
-    public ResponseEntity<Page<ArtistDTO>> searchByTitle(@RequestParam String name, Pageable pageable) {
+    public ResponseEntity<Page<ArtistDTO>> searchByName(@RequestParam String name, Pageable pageable) {
 
         Page<ArtistDTO> artists = artistService.searchByName(name,pageable);
 
@@ -92,7 +99,7 @@ public class ArtistController {
     }
 
     @PutMapping("/{id}/remove/album/{albumid}")
-    public ResponseEntity<ArtistDTO> removeSongFromAlbum(@PathVariable Long id, @PathVariable Long albumid) {
+    public ResponseEntity<ArtistDTO> removeAlbumFromArtist(@PathVariable Long id, @PathVariable Long albumid) {
 
         return ResponseEntity.ok(artistService.removeAlbumFromArtist(id,albumid));
     }

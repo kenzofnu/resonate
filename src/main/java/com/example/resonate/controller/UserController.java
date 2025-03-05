@@ -29,6 +29,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAll(pageable));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok().body(userService.findById(id));
+    }
+
     @GetMapping("/name")
     public ResponseEntity<Page<UserDTO>> findByName(@RequestParam String name, Pageable pageable) {
         return ResponseEntity.ok().body(userService.findByName(name, pageable));
@@ -57,6 +62,15 @@ public class UserController {
 
         return ResponseEntity.ok(userService.createPlaylist(id,playlistRequestDTO));
     }
+
+    @GetMapping("/{id}/playlists")
+    public ResponseEntity<Page<PlaylistDTO>> findPlaylistByUserId(@PathVariable Long id, Pageable pageable) {
+
+        return ResponseEntity.ok().body(userService.findPlaylistById(id,pageable));
+
+    }
+
+
 
 
 

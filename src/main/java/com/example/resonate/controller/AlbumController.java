@@ -37,6 +37,11 @@ public class AlbumController {
 
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AlbumDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(albumService.findById(id));
+    }
+
     @GetMapping("/title")
     public ResponseEntity<Page<AlbumDTO>> searchAlbumByTitle(@RequestParam String title, Pageable pageable) {
 

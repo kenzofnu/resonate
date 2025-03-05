@@ -16,13 +16,27 @@ public class PlaylistDTO {
 
     private List<SongDTO> songList = new ArrayList<>();
 
+    private int duration;
+
+    private String description;
+
     public PlaylistDTO() {
     }
 
-    public PlaylistDTO(Long id, String name, List<SongDTO> songList) {
+    public PlaylistDTO(Long id, String name, List<SongDTO> songList, int duration, String description) {
         this.id = id;
         this.name = name;
         this.songList = songList;
+        this.duration = duration;
+        this.description = description;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public Long getId() {
@@ -48,5 +62,13 @@ public class PlaylistDTO {
 
     public void setSongList(List<SongDTO> songList) {
         this.songList = songList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

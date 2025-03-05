@@ -38,6 +38,12 @@ public class SongController {
         return ResponseEntity.ok(songs);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<SongDTO> findById(@PathVariable Long id) {
+
+        return ResponseEntity.ok().body(songService.findById(id));
+    }
+
     @GetMapping("/title")
     public ResponseEntity<Page<SongDTO>> searchByTitle(@RequestParam String title, Pageable pageable) {
 
@@ -46,7 +52,6 @@ public class SongController {
         return ResponseEntity.ok(songs);
 
     }
-
 
 
     @PostMapping()

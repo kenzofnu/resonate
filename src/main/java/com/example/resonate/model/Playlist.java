@@ -22,6 +22,19 @@ public class Playlist {
     @JoinTable(name="playlist_song",joinColumns = @JoinColumn(name="playlist_id"),inverseJoinColumns = @JoinColumn(name="song_id"))
     private List<Song> songList = new ArrayList<>();
 
+    private int duration;
+
+    private String description;
+
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
     public Long getId() {
         return id;
     }
@@ -52,5 +65,13 @@ public class Playlist {
 
     public void setUserList(List<User> userList) {
         this.userList = userList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

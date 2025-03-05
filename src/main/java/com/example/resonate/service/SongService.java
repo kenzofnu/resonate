@@ -120,4 +120,10 @@ public class SongService {
 
 
     }
+
+    public SongDTO findById(Long id) {
+        Song song = songRepository.findById(id).orElseThrow(()-> new RuntimeException("Song not found"));
+
+        return toSongDTO(song);
+    }
 }

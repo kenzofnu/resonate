@@ -186,4 +186,9 @@ public class AlbumService {
 
         return albumRepository.searchAlbumByTitle(title, pageable).map(this::toAlbumDTO);
     }
+
+    public AlbumDTO findById(Long id) {
+
+        return toAlbumDTO(albumRepository.findById(id).orElseThrow(()-> new RuntimeException("Album not found")));
+    }
 }
