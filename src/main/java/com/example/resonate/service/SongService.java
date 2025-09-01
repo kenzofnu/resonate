@@ -96,12 +96,11 @@ public class SongService {
         songRepository.save(updatedSong);
 
         Album album = updatedSong.getAlbum();
-
-        int duration= album.getSongList().stream().mapToInt(Song::getDuration).sum();
-
-        album.setDuration(duration);
-
-        albumRepository.save(album);
+        if (album != null) {
+            int duration = album.getSongList().stream().mapToInt(Song::getDuration).sum();
+            album.setDuration(duration);
+            albumRepository.save(album);
+        }
 
         return toSongDTO(updatedSong);
     }
